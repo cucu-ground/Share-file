@@ -3,12 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>파일 업로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-form {
+            margin-top: 20px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h2>파일 업로드</h2>
-    <form enctype="multipart/form-data" action="/upload" method="POST">
-        <input type="file" name="file" />
-        <input type="submit" value="업로드" />
-    </form>
+    <div class="container">
+        <h2>파일 업로드</h2>
+        <form enctype="multipart/form-data" action="/" method="POST" class="upload-form">
+            <input type="file" name="file" required />
+            <div class="file-info">
+                허용된 파일 형식: PNG, PDF, JPG, GIF, JPEG<br>
+                최대 파일 크기: 64MB
+            </div>
+            <input type="submit" value="업로드" />
+        </form>
+    </div>
 </body>
 </html>

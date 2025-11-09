@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>업로드 성공</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        .success-icon {
+            text-align: center;
+            font-size: 48px;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .file-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .file-info p {
+            margin: 10px 0;
+            color: #333;
+        }
+        .file-info strong {
+            color: #666;
+        }
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #2196F3;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .download-btn:hover {
+            background-color: #0b7dda;
+        }
+        .upload-another {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .upload-another:hover {
+            background-color: #45a049;
+        }
+        .share-section {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .share-section p {
+            margin: 10px 0;
+            color: #333;
+        }
+        .share-url {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .share-url input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .copy-btn {
+            padding: 10px 20px;
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .copy-btn:hover {
+            background-color: #F57C00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h2>파일 업로드 성공!</h2>
+        
+        <div class="file-info">
+            <p><strong>파일명:</strong> {{.Filename}}</p>
+        </div>
+        
+        <div class="share-section">
+            <p><strong>공유 링크:</strong></p>
+            <div class="share-url">
+                <input type="text" id="shareUrl" value="{{.FullURL}}" readonly>
+                <button onclick="copyUrl()" class="copy-btn">복사</button>
+            </div>
+        </div>
+        
+        <a href="{{.DownloadURL}}" class="download-btn">파일 다운로드</a>
+        <a href="/" class="upload-another">다른 파일 업로드</a>
+    </div>
+
+    <script>
+        function copyUrl() {
+            const urlInput = document.getElementById('shareUrl');
+            urlInput.select();
+            document.execCommand('copy');
+
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent='복사완료!';
+            btn.style.backgroundColor='#4CAF50';
+
+            setTimeout(() => {
+                btn.textContent='복사';
+                btn.style.backgroundColor='#FF9800';
+            },2000);
+        }
+    </script>
+</body>
+</html>
