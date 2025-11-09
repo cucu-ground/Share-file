@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -37,10 +36,7 @@ var allowContent = map[string]bool{
 	"text/plain":      true,
 }
 
-var (
-	fileMap   = make(map[string]string)
-	fileMapMu sync.RWMutex
-)
+var fileMap = make(map[string]string)
 
 // 확장자 검증
 func AllowExtension(filename string) bool {
@@ -79,7 +75,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		// 파일 내용 검증
 		var b = make([]byte, 512)
 		n, err := uploadfile.Read(b)
-		if err != nil && err != io.EOF {
+		if err != nil {
 			http.Error(w, "파일 읽기 실패", http.StatusInternalServerError)
 			return
 		}
@@ -110,14 +106,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		ext := filepath.Ext(OgName)
 		Cgfilename := UniqueName() + ext
 
-		// 중복 파일명 방지
-		fileMapMu.Lock()
-		if _, exists := fileMap[OgName]; exists {
-			fileMapMu.Unlock()
-			http.Error(w, fmt.Sprintf("'%s'는 이미 업로드된 파일명입니다. 다른 이름으로 업로드해주세요", OgName), http.StatusConflict)
-			return
-		}
-
 		os.MkdirAll("uploads", 0755)
 		file, err := os.Create(filepath.Join("uploads", Cgfilename))
 		if err != nil {
@@ -128,16 +116,15 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		io.Copy(file, uploadfile)
 
-		fileMap[OgName] = Cgfilename
-		fileMapMu.Unlock()
+		fileMap[Cgfilename] = OgName
 
-		encodeOgName := url.PathEscape(OgName)
-		downURL := fmt.Sprintf("/down/%s", encodeOgName)
+		encodeCgName := url.PathEscape(Cgfilename)
+		downURL := fmt.Sprintf("/down/%s", encodeCgName)
 
 		// 공유 url 생성
 		scheme := "https"
 		host := r.Host
-		fullURL := fmt.Sprintf("%s://%s/down/%s", scheme, host, encodeOgName)
+		fullURL := fmt.Sprintf("%s://%s/down/%s", scheme, host, encodeCgName)
 
 		tmpl, err := template.ParseFiles("success.html")
 		if err != nil {
@@ -167,21 +154,19 @@ func UniqueName() string {
 
 func downHandler(w http.ResponseWriter, r *http.Request) {
 
-	encodeOgName := strings.TrimPrefix(r.URL.Path, "/down/")
-	if encodeOgName == "" {
+	encodeCgName := strings.TrimPrefix(r.URL.Path, "/down/")
+	if encodeCgName == "" {
 		http.Error(w, "파일명이 없습니다 : ", http.StatusBadRequest)
 		return
 	}
 
-	OgName, err := url.PathUnescape(encodeOgName)
+	CgName, err := url.PathUnescape(encodeCgName)
 	if err != nil {
 		http.Error(w, "잘못된 파일명입니다", http.StatusBadRequest)
 		return
 	}
 
-	fileMapMu.RLock()
-	CgName, exists := fileMap[OgName]
-	fileMapMu.RUnlock()
+	OgName, exists := fileMap[CgName]
 
 	if !exists {
 		http.Error(w, "파일을 찾을 수 없습니다", http.StatusNotFound)
