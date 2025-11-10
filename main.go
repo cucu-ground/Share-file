@@ -36,8 +36,6 @@ var allowContent = map[string]bool{
 	"text/plain":      true,
 }
 
-var fileMap = make(map[string]string)
-
 // 확장자 검증
 func AllowExtension(filename string) bool {
 	extension := filepath.Ext(filename)
@@ -116,8 +114,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 		io.Copy(file, uploadfile)
 
-		fileMap[Cgfilename] = OgName
-
 		encodeCgName := url.PathEscape(Cgfilename)
 		downURL := fmt.Sprintf("/down/%s", encodeCgName)
 
@@ -149,7 +145,7 @@ func UniqueName() string {
 	timestamp := time.Now().UnixNano()
 	randomNumber, _ := rand.Int(rand.Reader, big.NewInt(10000))
 
-	return fmt.Sprintf("%d&%d", timestamp, randomNumber)
+	return fmt.Sprintf("%d_%d", timestamp, randomNumber)
 }
 
 func downHandler(w http.ResponseWriter, r *http.Request) {
@@ -163,13 +159,6 @@ func downHandler(w http.ResponseWriter, r *http.Request) {
 	CgName, err := url.PathUnescape(encodeCgName)
 	if err != nil {
 		http.Error(w, "잘못된 파일명입니다", http.StatusBadRequest)
-		return
-	}
-
-	OgName, exists := fileMap[CgName]
-
-	if !exists {
-		http.Error(w, "파일을 찾을 수 없습니다", http.StatusNotFound)
 		return
 	}
 
@@ -190,7 +179,7 @@ func downHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", OgName))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s", CgName))
 	w.Header().Set("Content-Type", "application/octet-stream")
 	// MIME 타입 검증
 	w.Header().Set("X-Content-Type-Options", "nosniff")
